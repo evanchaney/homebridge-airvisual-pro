@@ -78,6 +78,8 @@ refresh: function() {
 		}
 		if(stdout != '') {
 			that.airdata = JSON.parse(stdout);
+		} else if (that.logging) {
+			that.log("Data refresh failed because stdout is blank")
 		}
 	});
 	
