@@ -68,7 +68,13 @@ refresh: function() {
 		// Avoid NT_STATUS_CONNECTION_DISCONNECTED error. AirVisual Pro
 		// does not appear to support SMB2 or SMB3 which are the default
 		// protocols supported by Samba circa December 2024.
-		"--option='client min protocol=NT1'"
+		"--option='client min protocol=NT1' " +
+		// By default, smbclient writes progress messages to stderr and
+		// error messages to stdout. To ensure an error message isn't
+		// interpreted as data returned from the AirVisual Pro tell
+		// smbclient to send both errors and progress messages to stderr
+		// instead of stdout.
+		'-E'
 	
 	exec(smbCmd, (error, stdout, stderr) => {
 		if (that.logging) {
