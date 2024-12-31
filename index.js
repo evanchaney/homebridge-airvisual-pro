@@ -100,10 +100,20 @@ refresh: function() {
 			return
 		}
 
-		if(stdout != '') {
+		if (stdout.trim() === '') {
+			if (that.logging) {
+				that.log("Data refresh failed because stdout is blank")
+			}
+			return
+		}
+
+		try {
 			that.airdata = JSON.parse(stdout);
-		} else if (that.logging) {
-			that.log("Data refresh failed because stdout is blank")
+		} catch (ex) {
+			if (that.logging) {
+				that.log("Parsing stdout failed:")
+				that.log(ex)
+			}
 		}
 	});
 	
