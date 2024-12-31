@@ -82,6 +82,24 @@ refresh: function() {
 			that.log("[error]: " + JSON.stringify(error));
 			that.log("[stderr]: " + JSON.stringify(stderr));
 		}
+
+		// smbclient behaves in unconventional ways when it comes to
+		// where and when it writes output.
+		//
+		// For example, by default it appears to write error messages
+		// to stdout rather than stderr.
+		//
+		// As a guard against misleading SyntaxErrors when parsing
+		// stdout don't attempt to parse stdout if an error is known
+		// to have occurred. Clearly state an error occurred and abort
+		// the refresh instead.
+		if (error) {
+			if (that.logging) {
+				that.log("Data refresh failed due to an error")
+			}
+			return
+		}
+
 		if(stdout != '') {
 			that.airdata = JSON.parse(stdout);
 		} else if (that.logging) {
