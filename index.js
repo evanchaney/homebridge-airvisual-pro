@@ -59,8 +59,18 @@ refresh: function() {
 	if (that.logging) {
 		this.log ("Refreshing values...");
 	}
+
+	const smbCmd = `smbclient -U ${that.user}%${that.pass} ` +
+		`//${that.ip}/airvisual ` +
+		// Get the contents of latest_config_measurements.json and write
+		// it to stdout.
+		"-c 'get latest_config_measurements.json -' " +
+		// Avoid NT_STATUS_CONNECTION_DISCONNECTED error. AirVisual Pro
+		// does not appear to support SMB2 or SMB3 which are the default
+		// protocols supported by Samba circa December 2024.
+		"--option='client min protocol=NT1'"
 	
-	exec('smbget --stdout -q -U ' + that.user + '%' + that.pass + ' smb://' + that.ip + '/airvisual/latest_config_measurements.json', (error, stdout, stderr) => {
+	exec(smbCmd, (error, stdout, stderr) => {
 		if (that.logging) {
 			that.log("[stdout]: " + JSON.stringify(stdout));
 			that.log("[error]: " + JSON.stringify(error));
