@@ -139,49 +139,49 @@ refresh: function() {
 			l_humidity_RH = that.airdata.measurements.humidity_RH;
 			l_co2_ppm = that.airdata.measurements.co2_ppm;
 		}
-		if(that.aqi != l_pm25_aqius) {
-			if (that.logging) {
-				that.log ("AQI - " + that.aqi + " -> " + l_pm25_aqius);
-			}
-			that.aqi = Number(l_pm25_aqius);
-			that.setAirQuality(that.aqi);
+
+		// Set AQI
+		if (that.logging && that.aqi != l_pm25_aqius) {
+			that.log ("AQI - " + that.aqi + " -> " + l_pm25_aqius);
 		}
-		if(that.pm25 != l_pm25_ugm3) {
-			if (that.logging) {
-				that.log ("PM2.5 (ug/m3) - " + that.pm25 + " -> " + l_pm25_ugm3);
-			}
-			that.pm25 = Number(l_pm25_ugm3);
-			that.setPM25Density();
+		that.aqi = Number(l_pm25_aqius);
+		that.setAirQuality(that.aqi);
+
+		// PM2.5 concentration
+		if (that.logging && that.pm25 != l_pm25_ugm3) {
+			that.log ("PM2.5 (ug/m3) - " + that.pm25 + " -> " + l_pm25_ugm3);
 		}
-		if(that.pm10 != l_pm10_ugm3) {
-			if (that.logging) {
-				that.log ("PM10 (ug/m3) - " + that.pm10 + " -> " + l_pm10_ugm3);
-			}
-			that.pm10 = Number(l_pm10_ugm3); 
-			that.setPM10Density();
+		that.pm25 = Number(l_pm25_ugm3);
+		that.setPM25Density();
+
+		// Set PM10 concentration
+		if (that.logging && that.pm10 != l_pm10_ugm3) {
+			that.log ("PM10 (ug/m3) - " + that.pm10 + " -> " + l_pm10_ugm3);
 		}
-		if(that.temp_c != l_temperature_C) {
-			if (that.logging) {
-				that.log ("Temperature (C) - " + that.temp_c + " -> " + l_temperature_C);
-			}
-			that.temp_c = Number(l_temperature_C); 
-			that.setCurrentTemperature();
+		that.pm10 = Number(l_pm10_ugm3);
+		that.setPM10Density();
+
+		// Set temp
+		if (that.logging && that.temp_c != l_temperature_C) {
+			that.log ("Temperature (C) - " + that.temp_c + " -> " + l_temperature_C);
 		}
-		if(that.hm != l_humidity_RH) {
-			if (that.logging) {
-				that.log ("Humidity (%) - " + that.hm + " -> " + l_humidity_RH);
-			}
-			that.hm = Number(l_humidity_RH); 
-			that.setHumidity();
+		that.temp_c = Number(l_temperature_C);
+		that.setCurrentTemperature();
+
+		// Set humidity
+		if (that.logging && that.hm != l_humidity_RH) {
+			that.log ("Humidity (%) - " + that.hm + " -> " + l_humidity_RH);
 		}
-		if(that.co2 != l_co2_ppm) {
-			if (that.logging) {
-				that.log ("CO2 (ppm) - " + that.co2 + " -> " + l_co2_ppm);
-			}
-			that.co2 = Number(l_co2_ppm); 
-			that.setCarbonDioxide();
-			that.setCarbonDioxideDetected();
+		that.hm = Number(l_humidity_RH);
+		that.setHumidity();
+
+		// Set CO2
+		if (that.logging && that.co2 != l_co2_ppm) {
+			that.log ("CO2 (ppm) - " + that.co2 + " -> " + l_co2_ppm);
 		}
+		that.co2 = Number(l_co2_ppm);
+		that.setCarbonDioxide();
+		that.setCarbonDioxideDetected();
 	}
 },
 
