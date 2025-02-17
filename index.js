@@ -59,15 +59,61 @@ refresh: function() {
 	if (that.logging) {
 		this.log ("Refreshing values...");
 	}
+
+	const smbCmd = `smbclient -U ${that.user}%${that.pass} ` +
+		`//${that.ip}/airvisual ` +
+		// Get the contents of latest_config_measurements.json and write
+		// it to stdout.
+		"-c 'get latest_config_measurements.json -' " +
+		// Avoid NT_STATUS_CONNECTION_DISCONNECTED error. AirVisual Pro
+		// does not appear to support SMB2 or SMB3 which are the default
+		// protocols supported by Samba circa December 2024.
+		"--option='client min protocol=NT1' " +
+		// By default, smbclient writes progress messages to stderr and
+		// error messages to stdout. To ensure an error message isn't
+		// interpreted as data returned from the AirVisual Pro tell
+		// smbclient to send both errors and progress messages to stderr
+		// instead of stdout.
+		'-E'
 	
-	exec('smbget -q -U ' + that.user + '%' + that.pass + ' smb://' + that.ip + '/airvisual/latest_config_measurements.json', (error, stdout, stderr) => {
+	exec(smbCmd, (error, stdout, stderr) => {
 		if (that.logging) {
 			that.log("[stdout]: " + JSON.stringify(stdout));
 			that.log("[error]: " + JSON.stringify(error));
 			that.log("[stderr]: " + JSON.stringify(stderr));
 		}
-		if(stdout != '') {
+
+		// smbclient behaves in unconventional ways when it comes to
+		// where and when it writes output.
+		//
+		// For example, by default it appears to write error messages
+		// to stdout rather than stderr.
+		//
+		// As a guard against misleading SyntaxErrors when parsing
+		// stdout don't attempt to parse stdout if an error is known
+		// to have occurred. Clearly state an error occurred and abort
+		// the refresh instead.
+		if (error) {
+			if (that.logging) {
+				that.log("Data refresh failed due to an error")
+			}
+			return
+		}
+
+		if (stdout.trim() === '') {
+			if (that.logging) {
+				that.log("Data refresh failed because stdout is blank")
+			}
+			return
+		}
+
+		try {
 			that.airdata = JSON.parse(stdout);
+		} catch (ex) {
+			if (that.logging) {
+				that.log("Parsing stdout failed:")
+				that.log(ex)
+			}
 		}
 	});
 	
