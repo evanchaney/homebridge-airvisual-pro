@@ -22,7 +22,7 @@ function AirVisualProAccessory(log, config) {
 	this.logging = config["logging"] || false;
 	
 	this.airdata = '';
-	this.aq_status = 0;
+	this.aq_status = Characteristic.AirQuality.UNKNOWN;
 	
 	this.aqi = 0;
 	this.pm25 = 0;
@@ -192,18 +192,24 @@ getAirQuality: function (callback) {
 
 setAirQuality: function (aqi) {
 	var that = this;
-	if (aqi >= 0 && aqi <= 50) {
-		that.aq_status = 1;
+
+	// Values are aligned to the "Levels of concern" descriptors used in
+	// the U.S. EPA air quality index. For example, in the U.S. EPA AQI
+	// 0-50 is described as "Good", 51-100 is described as "Moderate",
+	// 101-150 is "Unhealthy for sensitive groups" and levels above 150
+	// are described as "Unhealthy", "Very unhealthy" and "Hazardous".
+	if (aqi === 0) {
+		that.aq_status = Characteristic.AirQuality.EXCELLENT
+	} else if (aqi > 0 && aqi <= 50) {
+		that.aq_status = Characteristic.AirQuality.GOOD;
 	} else if (aqi > 50 && aqi <= 100) {
-		that.aq_status = 2;
+		that.aq_status = Characteristic.AirQuality.FAIR;
 	} else if (aqi > 100 && aqi <= 150) { 
-		that.aq_status = 3;
-	} else if (aqi > 150 && aqi <= 200) {
-		that.aq_status = 4;
-	} else if (aqi > 200) {
-		that.aq_status = 5;
+		that.aq_status = Characteristic.AirQuality.INFERIOR;
+	} else if (aqi > 150) {
+		that.aq_status = Characteristic.AirQuality.POOR;
 	} else {
-		that.aq_status = 0;
+		that.aq_status = Characteristic.AirQuality.UNKNOWN;
 	}
 	that.airqualityService.setCharacteristic(Characteristic.AirQuality, that.aq_status);
 },
